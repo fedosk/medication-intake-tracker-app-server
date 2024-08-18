@@ -1,7 +1,7 @@
 const pool = require('../../db');
 
 const createTables = async () => {
-    const createUserTableQuery = `
+  const createUserTableQuery = `
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             username VARCHAR(100) UNIQUE NOT NULL,
@@ -13,7 +13,7 @@ const createTables = async () => {
         );
     `;
 
-    const createMedicationsTableQuery = `
+  const createMedicationsTableQuery = `
         CREATE TABLE IF NOT EXISTS medications (
             id SERIAL PRIMARY KEY,
             user_id INT UNIQUE NOT NULL,
@@ -32,7 +32,7 @@ const createTables = async () => {
         );
     `;
 
-    const createTokenTableQuery = `
+  const createTokenTableQuery = `
         CREATE TABLE IF NOT EXISTS tokens (
             id SERIAL PRIMARY KEY,
             user_id INT UNIQUE NOT NULL,
@@ -46,14 +46,14 @@ const createTables = async () => {
         );
     `;
 
-    try {
-        await pool.query(createUserTableQuery);
-        await pool.query(createMedicationsTableQuery);
-        await pool.query(createTokenTableQuery);
-        console.log("Tables created successfully.");
-    } catch (error) {
-        console.error("Failed to create tables: ", error);
-    }
+  try {
+    await pool.query(createUserTableQuery);
+    await pool.query(createMedicationsTableQuery);
+    await pool.query(createTokenTableQuery);
+    console.log('Tables created successfully.');
+  } catch (error) {
+    console.error('Failed to create tables: ', error);
+  }
 };
 
 module.exports = createTables;
