@@ -5,7 +5,8 @@ const cookieParser = require('cookie-parser')
 const userRouter = require('./src/routes/user.routes');
 const medicationRouter = require('./src/routes/medication.routes');
 const protectedRouter = require('./src/routes/protected.routes');
-const createTables = require('./src/models/index')
+const createTables = require('./src/models/index');
+const { errorMiddleware } = require('./src/middlewares/error.middleware')
 
 const corsOptions = {
     origin: "http://localhost:8090",
@@ -22,6 +23,7 @@ app.use(cors(corsOptions));
 app.use('/api', userRouter);
 app.use('/api', medicationRouter);
 app.use('/protected', protectedRouter);
+app.use(errorMiddleware);
 
 const start = async () => {
     try {

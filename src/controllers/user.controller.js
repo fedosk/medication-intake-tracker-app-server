@@ -3,20 +3,13 @@ const bcrypt = require('bcrypt');
 const pool = require('../../db');
 const jwt = require('jsonwebtoken');
 const userService = require('../service/user.service');
-const uuid = require('uuid');
-const usernameHandler = require('../utils/usernameHandler');
-const mailService = require('../service/mail.service');
-const tokenService = require('../service/token.service');
-const UserDto = require('../dtos/user.dto');
-
-
-
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
 class UserController {
-    async registerUser(req, res) {
+    async registerUser(req, res, next) {
         const { username, email, password } = req.body;
+
         try {
             if (!email || !password) {
                 return res.status(400).json({ error: 'Email and password are required' });
@@ -27,11 +20,11 @@ class UserController {
             
             return res.status(201).json(userData);
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            next(error);
         }
     };
 
-    async loginUser(req, res) {
+    async loginUser(req, res, next) {
         const { email, password } = req.body;
 
         try {
@@ -50,45 +43,42 @@ class UserController {
                 return res.status(401).json({ error: 'Invalid username or password' });
             }
 
-            const token = jwt.sign({ userId: user.id }, SECRET_KEY, {
-                expiresIn: '24h',
-            });
+            const token = jwt.sign({ userId: user.id }, SECRET_KEY, {expiresIn: '24h'});
 
             res.status(200).json({ token });
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            next(error);
         }
     };
-    async activateUser(req, res) {
+    async activateUser(req, res, next) {
         try {
             const activationLink = req.params.link;
-            console.log("🚀 ~ UserController ~ activateUser ~ activationLink:", activationLink)
             await userService.activate(activationLink);
             
             return res.redirect(process.env.CLIENT_URL)
         } catch (error) {
-            console.log(error);
+            next(error);
         };
     }
-    async refreshToken(req, res) {
+    async refreshToken(req, res, next) {
         try {
-            
+            console.log(req);
         } catch (error) {
-            
+            next(error);
         } 
     }
-    async getUsers(req, res) {
+    async getUsers(req, res, next) {
         try {
-            
+            console.log(req);
         } catch (error) {
-            
+            next(error);
         } 
     }
-    async logoutUser(req, res) {
+    async logoutUser(req, res, next) {
         try {
-            
+            console.log(req);
         } catch (error) {
-            
+            next(error);
         }        
     };
 };

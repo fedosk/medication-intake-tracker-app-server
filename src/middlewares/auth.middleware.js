@@ -5,7 +5,6 @@ const SECRET_KEY = process.env.SECRET_KEY;
 
 const verifyToken = (req, res, next) => {
     const token = req.header('Authorization');
-    console.log("🚀 ~ verifyToken ~ token:", token)
 
     if (!token) {
         return res.status(401).json({ error: 'Access denied' });
@@ -17,7 +16,7 @@ const verifyToken = (req, res, next) => {
 
         next();
     } catch (error) {
-        console.log("🚀 ~ verifyToken error:", error)
+        console.log("🚀 ~ verifyToken ~ error:", error)
         res.status(401).json({ error: 'Invalid token' });
     }
 };
