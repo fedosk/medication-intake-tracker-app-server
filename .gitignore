@@ -1,0 +1,51 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs
+*.log
+log-output/
+
+# TypeScript
+*.tsbuildinfo
+dist/
+out/
+
+# Environment Variables
+.env
+.env.local
+.env.test
+.env.production
+
+# Docker
+docker-compose.override.yml
+Dockerfile-* 
+docker-compose.yml
+postgres-data/
+
+# IDE files
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# npm package locks
+package-lock.json
+yarn.lock
+
+# Sensitive files
+*.key
+*.crt
+*.pem
+
+# Others
+coverage/
+*.swp
+
+# Optional Jest directory
+# Coverage directory
+coverage/
