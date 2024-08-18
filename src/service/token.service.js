@@ -50,10 +50,7 @@ class TokenService {
 
   async validateAccessToken(accessTokenToken) {
     try {
-      const userData = jwt.verify(
-        accessTokenToken,
-        process.env.SECRET_KEY,
-      );
+      const userData = jwt.verify(accessTokenToken, process.env.SECRET_KEY);
       return userData;
     } catch (error) {
       console.log('🚀 validateAccessToken error:', error);

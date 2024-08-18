@@ -1,6 +1,6 @@
 require('dotenv').config();
 const bcrypt = require('bcrypt');
-const pool = require('../../db');
+const db = require('../../db');
 const uuid = require('uuid');
 const usernameHandler = require('../utils/usernameHandler');
 const mailService = require('../service/mail.service');
@@ -12,7 +12,7 @@ class UserService {
   async getUserByEmail(email) {
     const query = 'SELECT * FROM users WHERE email = $1';
     const values = [email];
-    const result = await pool.query(query, values);
+    const result = await db.query(query, values);
 
     if (!result.rows.length) {
       return null;
@@ -24,7 +24,7 @@ class UserService {
   async getUserById(id) {
     const query = 'SELECT * FROM users WHERE id = $1';
     const values = [id];
-    const result = await pool.query(query, values);
+    const result = await db.query(query, values);
 
     if (!result.rows.length) {
       return null;
@@ -46,7 +46,7 @@ class UserService {
 
     const query = `INSERT INTO users (username, email, password, activation_link) VALUES ($1, $2, $3, $4) RETURNING *;`;
     const value = [name, email, hashedPassword, activationLink];
-    const result = await pool.query(query, value);
+    const result = await db.query(query, value);
 
     const userData = result.rows[0];
     const userId = result.rows[0].id;
@@ -68,7 +68,7 @@ class UserService {
   async activate(activationLink) {
     const query = `SELECT * FROM users WHERE activation_link = $1;`;
     const value = [activationLink];
-    const user = await pool.query(query, value);
+    const user = await db.query(query, value);
 
     if (!user.rows.length) {
       throw ApiError.BadRequest('Invalid activation link.');
@@ -76,7 +76,7 @@ class UserService {
 
     const updateQuery = `UPDATE users SET is_activated = $1 WHERE id = $2;`;
     const updateValues = [true, user.rows[0].id];
-    await pool.query(updateQuery, updateValues);
+    await db.query(updateQuery, updateValues);
 
     return { message: 'Account activated successfully' };
   }
@@ -84,7 +84,7 @@ class UserService {
   async login(email, password) {
     const query = `SELECT * FROM users WHERE email = $1;`;
     const value = [email];
-    const user = await pool.query(query, value);
+    const user = await db.query(query, value);
 
     if (!user.rows.length) {
       throw ApiError.BadRequest('User not found.');
@@ -110,14 +110,14 @@ class UserService {
   async logout(refreshToken) {
     const query = `SELECT * FROM tokens WHERE token = $1;`;
     const value = [refreshToken];
-    const tokenData = await pool.query(query, value);
+    const tokenData = await db.query(query, value);
 
     if (!tokenData.rows.length) {
       throw ApiError.BadRequest('User not found.');
     }
 
     const deleteQuery = `DELETE FROM tokens WHERE token = $1;`;
-    await pool.query(deleteQuery, value);
+    await db.query(deleteQuery, value);
 
     return { message: 'Logged out successfully' };
   }
@@ -145,7 +145,7 @@ class UserService {
 
   async getUsers() {
     const query = `SELECT * FROM users;`;
-    const users = await pool.query(query);
+    const users = await db.query(query);
 
     return users.rows;
   }

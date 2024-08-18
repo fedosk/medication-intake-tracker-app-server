@@ -1,64 +1,73 @@
-const db = require('../../db');
+const medicationService = require('../service/medication.service');
 
 class MedicationController {
-  async createMedication(req, res) {
-    console.log(
-      '🚀 ~ MedicationController ~ createMedication ~ req:',
-      req.user,
-    );
+  async createMedication(req, res, next) {
     const { name, description, initialCount, currentCount, destinationCount } =
       req.body;
 
     try {
-      const newMedication = await db.query(
-        `INSERT INTO medications 
-                                                (name, description, initial_count, current_count, destination_count)
-                                                values ($1, $2, $3, $4, $5) RETURNING *`,
-        [name, description, initialCount, currentCount, destinationCount],
+      const medication = await medicationService.createMedication(
+        name,
+        description,
+        initialCount,
+        currentCount,
+        destinationCount,
+        req.user.id,
       );
 
-      res.json(newMedication.rows[0]);
+      res.json(medication);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      next(error);
     }
   }
 
-  // async updateMedication(req, res) {
-  //     const { username, password } = req.body;
+  async getMedication(req, res, next) {
+    const { id } = req.params;
 
-  //     try{
+    try {
+      const medication = await medicationService.getMedication(id);
+      res.json(medication);
+    } catch (error) {
+      next(error);
+    }
+  }
 
-  //     } catch (error) {
-  //         res.status(500).json({ error: error.message });
-  //     }
-  // };
-  // async getMedication(req, res) {
-  //     const { username, password } = req.body;
+  async getUserMedicationsList(req, res, next) {
+    try {
+      const medicationList = await medicationService.getUserMedications(
+        req.user.id,
+      );
+      res.json(medicationList);
+    } catch (error) {
+      next(error);
+    }
+  }
 
-  //     try{
+  async updateMedication(req, res, next) {
+    const { id } = req.params;
+    const updates = req.body;
 
-  //     } catch (error) {
-  //         res.status(500).json({ error: error.message });
-  //     }
-  // };
-  // async getMedicationsList(req, res) {
-  //     const { username, password } = req.body;
+    try {
+      const updatedMedication = await medicationService.updateMedication(
+        id,
+        updates,
+      );
+      res.status(200).json(updatedMedication);
+    } catch (error) {
+      next(error);
+    }
+  }
 
-  //     try{
+  async deleteMedication(req, res, next) {
+    const { id } = req.params;
 
-  //     } catch (error) {
-  //         res.status(500).json({ error: error.message });
-  //     }
-  // };
-  // async deleteMedication(req, res) {
-  //     const { username, password } = req.body;
-
-  //     try{
-
-  //     } catch (error) {
-  //         res.status(500).json({ error: error.message });
-  //     }
-  // };
+    try {
+      const deletedMedication = await medicationService.deleteMedication(id);
+      res.status(200).json(deletedMedication);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new MedicationController();

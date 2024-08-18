@@ -30,7 +30,6 @@ class MailService {
               </div>
             `,
       });
-      console.log('Activation email sent:', to);
     } catch (error) {
       console.error('Error sending activation email:', error);
       throw ApiError.BadRequest('Failed to send activation email');
