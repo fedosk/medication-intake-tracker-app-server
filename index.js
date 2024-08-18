@@ -6,7 +6,7 @@ const userRouter = require('./src/routes/user.routes');
 const medicationRouter = require('./src/routes/medication.routes');
 const protectedRouter = require('./src/routes/protected.routes');
 const createTables = require('./src/models/index');
-const { errorMiddleware } = require('./src/middlewares/error.middleware');
+const errorMiddleware = require('./src/middlewares/error.middleware');
 
 const corsOptions = {
   origin: 'http://localhost:8090',

@@ -10,11 +10,23 @@ const ApiError = require('../exceptions/api.exception');
 
 class UserService {
   async getUserByEmail(email) {
-    const query = 'SELECT id, username, created_at FROM users WHERE email = $1';
+    const query = 'SELECT * FROM users WHERE email = $1';
     const values = [email];
     const result = await pool.query(query, values);
 
-    if (result.rows.length === 0) {
+    if (!result.rows.length) {
+      return null;
+    }
+
+    return result.rows[0];
+  }
+
+  async getUserById(id) {
+    const query = 'SELECT * FROM users WHERE id = $1';
+    const values = [id];
+    const result = await pool.query(query, values);
+
+    if (!result.rows.length) {
       return null;
     }
 
@@ -25,7 +37,7 @@ class UserService {
     const isUserExist = await this.getUserByEmail(email);
 
     if (isUserExist) {
-      throw new ApiError.BadRequest('This user already exist.');
+      throw ApiError.BadRequest('This user already exist.');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -50,7 +62,7 @@ class UserService {
     });
     await tokenService.storeRefreshToken(userId, refreshToken);
 
-    return { accessToken, refreshToken, user: userDto };
+    return { accessToken, user: userDto };
   }
 
   async activate(activationLink) {
@@ -59,15 +71,76 @@ class UserService {
     const user = await pool.query(query, value);
 
     if (!user.rows.length) {
-      throw new ApiError.BadRequest('Invalid activation link.');
+      throw ApiError.BadRequest('Invalid activation link.');
     }
 
     const updateQuery = `UPDATE users SET is_activated = $1 WHERE id = $2;`;
     const updateValues = [true, user.rows[0].id];
     await pool.query(updateQuery, updateValues);
 
-    // Optionally, return user info or success message.
     return { message: 'Account activated successfully' };
+  }
+
+  async login(email, password) {
+    const query = `SELECT * FROM users WHERE email = $1;`;
+    const value = [email];
+    const user = await pool.query(query, value);
+
+    if (!user.rows.length) {
+      throw ApiError.BadRequest('User not found.');
+    }
+
+    const userData = user.rows[0];
+    const passwordMatch = await bcrypt.compare(password, userData.password);
+
+    if (!passwordMatch) {
+      throw ApiError.BadRequest('Invalid password.');
+    }
+
+    const userDto = new UserDto(userData);
+
+    const { accessToken, refreshToken } = tokenService.generateTokens({
+      ...userDto,
+    });
+    await tokenService.storeRefreshToken(userData.id, refreshToken);
+
+    return { accessToken, user: userDto };
+  }
+
+  async logout(refreshToken) {
+    const query = `SELECT * FROM tokens WHERE token = $1;`;
+    const value = [refreshToken];
+    const tokenData = await pool.query(query, value);
+
+    if (!tokenData.rows.length) {
+      throw ApiError.BadRequest('User not found.');
+    }
+
+    const deleteQuery = `DELETE FROM tokens WHERE token = $1;`;
+    await pool.query(deleteQuery, value);
+
+    return { message: 'Logged out successfully' };
+  }
+
+  async refresh(refreshToken) {
+    if (!refreshToken) {
+      throw ApiError.UnauthorizeError();
+    }
+
+    const userDataFromToken = tokenService.validateRefreshToken(refreshToken);
+    const prevToken = tokenService.findToken(refreshToken);
+
+    if (!userDataFromToken || !prevToken) {
+      throw ApiError.UnauthorizeError();
+    }
+
+    const user = await this.getUserById(userDataFromToken.id);
+    const userDto = new UserDto(user);
+
+    const tokens = tokenService.generateTokens({ ...userDto });
+    await tokenService.storeRefreshToken(user.id, tokens.refreshToken);
+
+    return { accessToken: tokens.accessToken, user: userDto };
   }
 }
 

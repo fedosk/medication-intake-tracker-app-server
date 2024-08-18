@@ -1,5 +1,6 @@
 require('dotenv').config();
 const nodemailer = require('nodemailer');
+const ApiError = require('../exceptions/api.exception');
 
 class MailService {
   constructor() {
@@ -32,7 +33,7 @@ class MailService {
       console.log('Activation email sent:', to);
     } catch (error) {
       console.error('Error sending activation email:', error);
-      throw new Error('Failed to send activation email');
+      throw ApiError.BadRequest('Failed to send activation email');
     }
   }
 }

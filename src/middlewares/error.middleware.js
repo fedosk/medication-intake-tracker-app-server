@@ -1,15 +1,12 @@
 const ApiError = require('../exceptions/api.exception');
 
-const errorMiddleware = (err, req, res, next) => {
+// eslint-disable-next-line no-unused-vars
+module.exports = function (err, req, res, next) {
   if (err instanceof ApiError) {
     return res
       .status(err.status)
       .json({ message: err.message, errors: err.errors });
   }
 
-  return res
-    .status(500)
-    .json({ message: 'Unexpected error.', error: err.errors });
+  return res.status(500).json({ message: 'Unexpected error.' });
 };
-
-module.exports = { errorMiddleware };

@@ -1,20 +1,17 @@
 require('dotenv').config();
-const bcrypt = require('bcrypt');
-const pool = require('../../db');
-const jwt = require('jsonwebtoken');
 const userService = require('../service/user.service');
-
-const SECRET_KEY = process.env.SECRET_KEY;
+const { validationResult } = require('express-validator');
+const ApiError = require('../exceptions/api.exception');
 
 class UserController {
   async registerUser(req, res, next) {
     const { username, email, password } = req.body;
 
     try {
-      if (!email || !password) {
-        return res
-          .status(400)
-          .json({ error: 'Email and password are required' });
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        next(ApiError.BadRequest('Validation error.', errors.array()));
       }
 
       const userData = await userService.registration(
@@ -22,6 +19,7 @@ class UserController {
         email,
         password,
       );
+
       res.cookie('refreshToken', userData.refreshToken, {
         maxAge: 30 * 24 * 60 * 100,
         httpOnly: true,
@@ -37,26 +35,14 @@ class UserController {
     const { email, password } = req.body;
 
     try {
-      const query = `SELECT id, username, password FROM users WHERE username = $1;`;
-      const value = [email];
-      const result = await pool.query(query, value);
+      const userData = await userService.login(email, password);
 
-      if (result.rows.length === 0) {
-        return res.status(400).json({ error: 'Invalid username or password' });
-      }
-
-      const user = result.rows[0];
-      const passwordMatch = await bcrypt.compare(password, user.password);
-
-      if (!passwordMatch) {
-        return res.status(401).json({ error: 'Invalid username or password' });
-      }
-
-      const token = jwt.sign({ userId: user.id }, SECRET_KEY, {
-        expiresIn: '24h',
+      res.cookie('refreshToken', userData.refreshToken, {
+        maxAge: 30 * 24 * 60 * 100,
+        httpOnly: true,
       });
 
-      res.status(200).json({ token });
+      return res.status(201).json(userData);
     } catch (error) {
       next(error);
     }
@@ -71,13 +57,24 @@ class UserController {
       next(error);
     }
   }
+
   async refreshToken(req, res, next) {
+    const { refreshToken } = req.cookies;
+
     try {
-      console.log(req);
+      const token = await userService.refresh(refreshToken);
+
+      res.cookie('refreshToken', token, {
+        maxAge: 30 * 24 * 60 * 100,
+        httpOnly: true,
+      });
+
+      return res.status(201);
     } catch (error) {
       next(error);
     }
   }
+
   async getUsers(req, res, next) {
     try {
       console.log(req);
@@ -85,9 +82,15 @@ class UserController {
       next(error);
     }
   }
+
   async logoutUser(req, res, next) {
+    const { refreshToken } = req.cookies;
+
     try {
-      console.log(req);
+      const message = await userService.logout(refreshToken);
+      res.clearCookie('refreshToken');
+
+      return res.status(200).json(message);
     } catch (error) {
       next(error);
     }
