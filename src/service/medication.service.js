@@ -35,6 +35,10 @@ class MedicationService {
 
     const medication = await db.query(getMedicationQuery, getMedicationValues);
 
+    if (!medication.rows.length) {
+        throw ApiError.BadRequest('Medication not found.');
+    }
+
     return medication.rows[0];
   }
 
@@ -46,6 +50,11 @@ class MedicationService {
       getUserMedicationsQuery,
       getUserMedicationsValues,
     );
+
+    if (!medication.rows.length) {
+        throw ApiError.BadRequest('Medications not found.');
+    }
+
     return medication.rows;
   }
 
@@ -65,7 +74,7 @@ class MedicationService {
     updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
 
     if (!updateFields.length) {
-      throw ApiError.BadRequest('No fields to update');
+      throw ApiError.BadRequest('No fields to update.');
     }
 
     const updateQuery = `UPDATE medications SET ${updateFields.join(', ')} WHERE id = $${fieldIndex} RETURNING *`;
@@ -82,7 +91,7 @@ class MedicationService {
     const result = await db.query(deleteQuery, deleteValues);
 
     if (!result.rows.length) {
-      throw ApiError.BadRequest('Medication not found');
+      throw ApiError.BadRequest('Medication not found.');
     }
 
     return result.rows[0];
