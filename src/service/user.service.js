@@ -142,6 +142,13 @@ class UserService {
 
     return { accessToken: tokens.accessToken, user: userDto };
   }
+
+  async getUsers() {
+    const query = `SELECT * FROM users;`;
+    const users = await pool.query(query);
+
+    return users.rows;
+  }
 }
 
 module.exports = new UserService();

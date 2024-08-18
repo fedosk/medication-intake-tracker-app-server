@@ -40,10 +40,10 @@ class TokenService {
 
   async validateRefreshToken(refreshToken) {
     try {
-      const userData = jwt.verify(refreshToken, process.env.SECRET_KEY);
+      const userData = jwt.verify(refreshToken, process.env.SECRET_KEY_REFRESH);
       return userData;
     } catch (error) {
-      console.log('🚀 ~ TokenService ~ validateRefreshToken ~ error:', error);
+      console.log('🚀 validateRefreshToken error:', error);
       return null;
     }
   }
@@ -52,11 +52,11 @@ class TokenService {
     try {
       const userData = jwt.verify(
         accessTokenToken,
-        process.env.SECRET_KEY_REFRESH,
+        process.env.SECRET_KEY,
       );
       return userData;
     } catch (error) {
-      console.log('🚀 ~ TokenService ~ validateAccessToken ~ error:', error);
+      console.log('🚀 validateAccessToken error:', error);
       return null;
     }
   }

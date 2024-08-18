@@ -75,14 +75,6 @@ class UserController {
     }
   }
 
-  async getUsers(req, res, next) {
-    try {
-      console.log(req);
-    } catch (error) {
-      next(error);
-    }
-  }
-
   async logoutUser(req, res, next) {
     const { refreshToken } = req.cookies;
 
@@ -91,6 +83,16 @@ class UserController {
       res.clearCookie('refreshToken');
 
       return res.status(200).json(message);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getUsers(req, res, next) {
+    try {
+      const users = await userService.getUsers();
+
+      return res.status(200).json(users);
     } catch (error) {
       next(error);
     }

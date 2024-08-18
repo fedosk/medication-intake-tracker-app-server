@@ -1,23 +1,27 @@
 require('dotenv').config();
-const jwt = require('jsonwebtoken');
+const ApiError = require('../exceptions/api.exception');
+const tokenService = require('../service/token.service');
 
-const SECRET_KEY = process.env.SECRET_KEY;
-
-const verifyToken = (req, res, next) => {
-  const token = req.header('Authorization');
-
-  if (!token) {
-    return res.status(401).json({ error: 'Access denied' });
-  }
-
+const verifyToken = async (req, res, next) => {
   try {
-    const decoded = jwt.verify(token, SECRET_KEY);
-    req.userId = decoded.userId;
+    const bearerToken = req.headers.authorization;
+    const accessToken = bearerToken?.split(' ')[1];
 
+    if (!accessToken) {
+      return next(ApiError.UnauthorizeError());
+    }
+
+    const userData = await tokenService.validateAccessToken(accessToken);
+
+    if (!userData) {
+      return next(ApiError.UnauthorizeError());
+    }
+
+    req.user = userData;
     next();
   } catch (error) {
-    console.log('🚀 ~ verifyToken ~ error:', error);
-    res.status(401).json({ error: 'Invalid token' });
+    console.log('🚀 verifyToken error:', error);
+    return next(ApiError.UnauthorizeError());
   }
 };
 
