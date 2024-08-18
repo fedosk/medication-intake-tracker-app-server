@@ -36,7 +36,7 @@ class MedicationService {
     const medication = await db.query(getMedicationQuery, getMedicationValues);
 
     if (!medication.rows.length) {
-        throw ApiError.BadRequest('Medication not found.');
+      throw ApiError.BadRequest('Medication not found.');
     }
 
     return medication.rows[0];
@@ -52,7 +52,7 @@ class MedicationService {
     );
 
     if (!medication.rows.length) {
-        throw ApiError.BadRequest('Medications not found.');
+      throw ApiError.BadRequest('Medications not found.');
     }
 
     return medication.rows;
