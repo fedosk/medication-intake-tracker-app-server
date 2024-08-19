@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  postgresql:
+    image: postgres:latest
+    container_name: postgresql
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: medication_tracker
+    ports:
+      - "8001:5432"
+    volumes:
+      - ~/.pg-data/testTask:/var/lib/postgresql/data
+    networks:
+      - my_network 
+
+  app:
+    build: .
+    container_name: my_app
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=postgresql
+      - DB_PORT=5432
+      - PORT=8090
+    ports:
+      - "8090:8090"
+    depends_on:
+      - postgresql
+    networks:
+      - my_network
+
+volumes:
+  pgdata:
+
+networks:
+  my_network:
