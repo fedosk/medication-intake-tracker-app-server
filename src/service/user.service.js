@@ -62,7 +62,7 @@ class UserService {
     });
     await tokenService.storeRefreshToken(userId, refreshToken);
 
-    return { accessToken, user: userDto };
+    return {refreshToken, accessToken, user: userDto };
   }
 
   async activate(activationLink) {
@@ -104,7 +104,7 @@ class UserService {
     });
     await tokenService.storeRefreshToken(userData.id, refreshToken);
 
-    return { accessToken, user: userDto };
+    return { refreshToken, accessToken, user: userDto };
   }
 
   async logout(refreshToken) {

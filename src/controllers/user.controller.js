@@ -9,25 +9,20 @@ class UserController {
 
     try {
       const errors = validationResult(req);
-
       if (!errors.isEmpty()) {
-        next(ApiError.BadRequest('Validation error.', errors.array()));
+        return next(ApiError.BadRequest('Validation error.', errors.array()));
       }
 
-      const userData = await userService.registration(
-        username,
-        email,
-        password,
-      );
+      const userData = await userService.registration(username, email, password);
 
       res.cookie('refreshToken', userData.refreshToken, {
-        maxAge: 30 * 24 * 60 * 100,
+        maxAge: 30 * 24 * 60 * 60 * 1000,
         httpOnly: true,
       });
 
       return res.status(201).json(userData);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 
@@ -38,15 +33,16 @@ class UserController {
       const userData = await userService.login(email, password);
 
       res.cookie('refreshToken', userData.refreshToken, {
-        maxAge: 30 * 24 * 60 * 100,
+        maxAge: 30 * 24 * 60 * 60 * 1000,
         httpOnly: true,
       });
 
-      return res.status(201).json(userData);
+      return res.status(200).json(userData);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
+
   async activateUser(req, res, next) {
     try {
       const activationLink = req.params.link;
@@ -54,29 +50,37 @@ class UserController {
 
       return res.redirect(process.env.CLIENT_URL);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 
   async refreshToken(req, res, next) {
     const { refreshToken } = req.cookies;
 
-    try {
-      const token = await userService.refresh(refreshToken);
+    if (!refreshToken) {
+      return next(ApiError.UnauthorizedError());
+    }
 
-      res.cookie('refreshToken', token, {
-        maxAge: 30 * 24 * 60 * 100,
+    try {
+      const userData = await userService.refresh(refreshToken);
+
+      res.cookie('refreshToken', userData.refreshToken, {
+        maxAge: 30 * 24 * 60 * 60 * 1000, 
         httpOnly: true,
       });
 
-      return res.status(201);
+      return res.status(200).json(userData);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 
   async logoutUser(req, res, next) {
     const { refreshToken } = req.cookies;
+
+    if (!refreshToken) {
+      return next(ApiError.BadRequest('No refresh token provided.'));
+    }
 
     try {
       const message = await userService.logout(refreshToken);
@@ -84,7 +88,7 @@ class UserController {
 
       return res.status(200).json(message);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 
@@ -94,7 +98,7 @@ class UserController {
 
       return res.status(200).json(users);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 }

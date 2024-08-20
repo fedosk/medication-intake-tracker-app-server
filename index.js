@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const cookieParser = require('cookie-parser');
+const cookieParser = require("cookie-parser");
 const cors = require('cors');
 const userRouter = require('./src/routes/user.routes');
 const medicationRouter = require('./src/routes/medication.routes');
@@ -9,6 +9,7 @@ const createDBTables = require('./src/models/index');
 
 const corsOptions = {
   origin: 'http://localhost:8090',
+  credentials: true,
 };
 
 const PORT = process.env.PORT || 8090;
