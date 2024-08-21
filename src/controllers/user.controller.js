@@ -22,7 +22,7 @@ class UserController {
 
       return res.status(201).json(userData);
     } catch (error) {
-      return next(error);
+      next(error);
     }
   }
 
@@ -39,7 +39,7 @@ class UserController {
 
       return res.status(200).json(userData);
     } catch (error) {
-      return next(error);
+      next(error);
     }
   }
 
@@ -50,7 +50,7 @@ class UserController {
 
       return res.redirect(process.env.CLIENT_URL);
     } catch (error) {
-      return next(error);
+      next(error);
     }
   }
 
@@ -58,7 +58,7 @@ class UserController {
     const { refreshToken } = req.cookies;
 
     if (!refreshToken) {
-      return next(ApiError.UnauthorizedError());
+      next(ApiError.UnauthorizeError());
     }
 
     try {
@@ -71,7 +71,7 @@ class UserController {
 
       return res.status(200).json(userData);
     } catch (error) {
-      return next(error);
+      next(error);
     }
   }
 
@@ -88,7 +88,7 @@ class UserController {
 
       return res.status(200).json(message);
     } catch (error) {
-      return next(error);
+      next(error);
     }
   }
 
@@ -98,7 +98,7 @@ class UserController {
 
       return res.status(200).json(users);
     } catch (error) {
-      return next(error);
+      next(error);
     }
   }
 }

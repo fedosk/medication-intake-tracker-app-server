@@ -44,14 +44,21 @@ class MedicationController {
   }
 
   async updateMedication(req, res, next) {
-    const { id } = req.params;
+    const id = +req.params.id.substring(1);
+  
+    if (isNaN(id)) {
+      return res.status(400).json({ error: 'Invalid ID' });
+    }
+  
     const updates = req.body;
-
+  
     try {
-      const updatedMedication = await medicationService.updateMedication(
-        id,
-        updates,
-      );
+      const updatedMedication = await medicationService.updateMedication(id, updates);
+
+      if (!updatedMedication) {
+        return res.status(404).json({ error: 'Medication not found' });
+      }
+  
       res.status(200).json(updatedMedication);
     } catch (error) {
       next(error);

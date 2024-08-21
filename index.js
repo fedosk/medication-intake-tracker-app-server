@@ -8,7 +8,7 @@ const errorMiddleware = require('./src/middlewares/error.middleware');
 const createDBTables = require('./src/models/index');
 
 const corsOptions = {
-  origin: 'http://localhost:8090',
+  origin: 'http://localhost:8081',
   credentials: true,
 };
 
