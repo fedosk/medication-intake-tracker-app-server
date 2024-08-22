@@ -15,7 +15,7 @@ dist/
 out/
 
 # Environment Variables
-.env
+# .env
 .env.local
 .env.test
 .env.production
