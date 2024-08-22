@@ -52,7 +52,7 @@ class MedicationService {
     );
 
     if (!medication.rows.length) {
-      throw ApiError.BadRequest('Medications not found.');
+      return [];
     }
 
     return medication.rows;

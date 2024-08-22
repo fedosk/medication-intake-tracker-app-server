@@ -127,8 +127,8 @@ class UserService {
       throw ApiError.UnauthorizeError();
     }
 
-    const userDataFromToken = tokenService.validateRefreshToken(refreshToken);
-    const prevToken = tokenService.findToken(refreshToken);
+    const userDataFromToken = await tokenService.validateRefreshToken(refreshToken);
+    const prevToken = await tokenService.findToken(refreshToken);
 
     if (!userDataFromToken || !prevToken) {
       throw ApiError.UnauthorizeError();
@@ -140,7 +140,7 @@ class UserService {
     const tokens = tokenService.generateTokens({ ...userDto });
     await tokenService.storeRefreshToken(user.id, tokens.refreshToken);
 
-    return { accessToken: tokens.accessToken, user: userDto };
+    return { ...tokens, user: userDto };
   }
 
   async getUsers() {

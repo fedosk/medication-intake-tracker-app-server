@@ -2,16 +2,16 @@ const medicationService = require('../service/medication.service');
 
 class MedicationController {
   async createMedication(req, res, next) {
-    const { name, description, initialCount, currentCount, destinationCount } =
-      req.body;
+    const { name, description, initial_count, current_count, destination_count } =
+    req.body;
 
     try {
       const medication = await medicationService.createMedication(
         name,
         description,
-        initialCount,
-        currentCount,
-        destinationCount,
+        initial_count,
+        current_count,
+        destination_count,
         req.user.id,
       );
 
@@ -22,7 +22,7 @@ class MedicationController {
   }
 
   async getMedication(req, res, next) {
-    const { id } = req.params;
+    const id = req.params.id;
 
     try {
       const medication = await medicationService.getMedication(id);
@@ -44,7 +44,7 @@ class MedicationController {
   }
 
   async updateMedication(req, res, next) {
-    const id = +req.params.id.substring(1);
+    const id = req.params.id;
   
     if (isNaN(id)) {
       return res.status(400).json({ error: 'Invalid ID' });
@@ -66,7 +66,11 @@ class MedicationController {
   }
 
   async deleteMedication(req, res, next) {
-    const { id } = req.params;
+    const id = req.params.id
+  
+    if (isNaN(id)) {
+      return res.status(400).json({ error: 'Invalid ID' });
+    }
 
     try {
       const deletedMedication = await medicationService.deleteMedication(id);
